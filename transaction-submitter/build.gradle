@@ -1,0 +1,6 @@
+dependencies {
+    compile group: 'org.hyperledger.sawtooth', name: 'sawtooth-sdk-signing', version: 'v0.1.2'
+    compile group: 'org.hyperledger.sawtooth', name: 'sawtooth-sdk-java', version: 'v0.1.2'
+    compile group: 'org.hyperledger.sawtooth', name: 'sawtooth-sdk-protos', version: 'v0.1.2'
+    compile 'io.github.rybalkinsd:kohttp:0.8.0'
+}

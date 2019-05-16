@@ -1,0 +1,6 @@
+FROM cantara/alpine-openjdk-jdk8
+
+LABEL "install-type"="mounted"
+
+COPY transaction-submitter/build/libs/transaction-submitter-0.1.jar transaction-submitter.jar
+COPY docker-trick/build/libs/docker-trick-0.1.jar docker-trick.jar

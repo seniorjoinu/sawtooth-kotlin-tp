@@ -1,2 +1,5 @@
-rootProject.name = 'dummy-tp'
+rootProject.name = 'kotlin-sawtooth-example'
+include 'transaction-submitter'
+include 'dummy-tp'
+include 'docker-trick'
 

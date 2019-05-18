@@ -75,7 +75,7 @@ object SawtoothEndorsingProtocol : AbstractProtocol() {
 
     private fun createProposalScript(): File {
         val file = File.createTempFile("script", null)
-        val keysString = keys.map { File(it).readText() }.joinToString(",") { it }
+        val keysString = keys.map { File(it).readText() }.joinToString(",") { "\"$it\"" }
 
         file.writeText(
             """

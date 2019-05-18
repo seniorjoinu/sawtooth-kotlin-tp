@@ -7,7 +7,8 @@ import java.net.InetSocketAddress
 
 fun main(args: Array<String>) {
     runBlocking {
-        if (args.isEmpty())
+        val rootValidatorHost = args.firstOrNull()
+        if (!(rootValidatorHost != null && rootValidatorHost.isNotEmpty()))
             println("No root validator host specified, just listening...")
 
         val port = 1337
@@ -21,8 +22,7 @@ fun main(args: Array<String>) {
 
         println("Listening for messages on $port")
 
-        val rootValidatorHost = args.firstOrNull()
-        if (rootValidatorHost != null) {
+        if (rootValidatorHost != null && rootValidatorHost.isNotEmpty()) {
             println("Trying to endorse by $rootValidatorHost:$port")
 
             val keyFile = File("/etc/sawtooth/keys/validator.pub")

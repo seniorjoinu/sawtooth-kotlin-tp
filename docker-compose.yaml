@@ -15,9 +15,6 @@
 
 version: "3.6"
 
-volumes:
-  keys:
-
 services:
   shell:
     image: hyperledger/sawtooth-all:1.1
@@ -34,12 +31,11 @@ services:
       - 4004
       - 5050
       - 8800
-    volumes:
-      - keys:/shared_keys
+      - 1337
     working_dir: /root
     command: "bash -c \"\
         sawadm keygen --force && \
-        endorser.sh &&
+        endorser.sh && \
         sawset genesis \
           -k /etc/sawtooth/keys/validator.priv \
           -o config-genesis.batch && \
@@ -47,11 +43,9 @@ services:
           -k /etc/sawtooth/keys/validator.priv \
           sawtooth.consensus.algorithm.name=pbft \
           sawtooth.consensus.algorithm.version=0.1 \
-          sawtooth.consensus.pbft.members=\\['\\\"'$$(cat /etc/sawtooth/keys/validator.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-1.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-2.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-3.pub)'\\\"'\\] \
           -o config.batch && \
         sawadm genesis \
           config-genesis.batch config.batch && \
-        mv /etc/sawtooth/keys/validator-* /shared_keys && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
         sawtooth-validator \
             --endpoint tcp://validator-0:8800 \
@@ -71,10 +65,12 @@ services:
       - 4004
       - 5050
       - 8800
+      - 1337
     volumes:
       - keys:/shared_keys
     command: "bash -c \"\
-        while true; do if [ -e /shared_keys/validator-1.pub ]; then mv /shared_keys/validator-1.priv /etc/sawtooth/keys/validator.priv && mv /shared_keys/validator-1.pub /etc/sawtooth/keys/validator.pub; break; fi; sleep 0.5; done; \
+        sawadm keygen --force && \
+        endorser.sh validator-0 && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
         sawtooth-validator \
             --endpoint tcp://validator-1:8800 \
@@ -97,10 +93,10 @@ services:
       - 4004
       - 5050
       - 8800
-    volumes:
-      - keys:/shared_keys
+      - 1337
     command: "bash -c \"\
-        while true; do if [ -e /shared_keys/validator-2.pub ]; then mv /shared_keys/validator-2.priv /etc/sawtooth/keys/validator.priv && mv /shared_keys/validator-2.pub /etc/sawtooth/keys/validator.pub; break; fi; sleep 0.5; done; \
+        sawadm keygen --force && \
+        endorser.sh validator-0 && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
         sawtooth-validator \
             --endpoint tcp://validator-2:8800 \
@@ -123,10 +119,10 @@ services:
       - 4004
       - 5050
       - 8800
-    volumes:
-      - keys:/shared_keys
+      - 1337
     command: "bash -c \"\
-        while true; do if [ -e /shared_keys/validator-3.pub ]; then mv /shared_keys/validator-3.priv /etc/sawtooth/keys/validator.priv && mv /shared_keys/validator-3.pub /etc/sawtooth/keys/validator.pub; break; fi; sleep 0.5; done; \
+        sawadm keygen --force && \
+        endorser.sh validator-0 && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
         sawtooth-validator \
             --endpoint tcp://validator-3:8800 \
@@ -149,10 +145,10 @@ services:
       - 4004
       - 5050
       - 8800
-    volumes:
-      - keys:/shared_keys
+      - 1337
     command: "bash -c \"\
-        while true; do if [ -e /shared_keys/validator-adhoc.pub ]; then mv /shared_keys/validator-adhoc.priv /etc/sawtooth/keys/validator.priv && mv /shared_keys/validator-adhoc.pub /etc/sawtooth/keys/validator.pub; break; fi; sleep 0.5; done; \
+        sawadm keygen --force && \
+        endorser.sh validator-0 && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
         sawtooth-validator \
             --endpoint tcp://validator-adhoc:8800 \
@@ -403,12 +399,3 @@ services:
     stop_signal: SIGKILL
     depends_on:
       - validator-adhoc
-
-  endorser:
-    build:
-      context: .
-      dockerfile: Dockerfile-endorser
-    container_name: endorser
-    stop_signal: SIGKILL
-    expose:
-      - 1337

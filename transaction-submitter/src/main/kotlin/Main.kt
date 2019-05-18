@@ -8,6 +8,8 @@ import sawtooth.sdk.signing.Signer
 
 // submits empty transaction
 fun main() {
+    System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
+
     println("Welcome to dummy-tp transaction submitter")
     println("Specify an endpoint to submit txn to (or put 'exit' to stop)")
 

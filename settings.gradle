@@ -2,4 +2,5 @@ rootProject.name = 'kotlin-sawtooth-example'
 include 'transaction-submitter'
 include 'dummy-tp'
 include 'docker-trick'
+include 'endorser'
 

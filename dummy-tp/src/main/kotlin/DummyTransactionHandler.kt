@@ -27,10 +27,12 @@ class DummyTransactionHandler : TransactionHandler {
         if (prevState == null)
             println("State is null for some reason...")
         else {
+            val prevValue = prevState.values.first().toByteArray()
+            val newValue = hash512(prevValue)
             state.setState(
-                mapOf(addr to ByteString.copyFromUtf8(Random().nextInt().toString())).entries
+                mapOf(addr to ByteString.copyFromUtf8(newValue)).entries
             )
-            println("State randomly changed")
+            println("State is changed successfully")
         }
     }
 }

@@ -6,11 +6,13 @@ if "%1" == "" (
 
 set version=%1
 
+echo Stopping old containers...
+@echo on
+docker-compose down
+@echo off
+
 if "%2" == "-r" (
-    echo Stopping old containers...
-    @echo on
-    docker-compose down
-    @echo off
+    docker system prune -f
 )
 
 echo Building sources...

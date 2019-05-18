@@ -38,11 +38,8 @@ services:
       - keys:/shared_keys
     working_dir: /root
     command: "bash -c \"\
-        sawadm keygen validator-1 && \
-        sawadm keygen validator-2 && \
-        sawadm keygen validator-3 && \
-        sawadm keygen validator-adhoc && \
         sawadm keygen --force && \
+        endorser.sh &&
         sawset genesis \
           -k /etc/sawtooth/keys/validator.priv \
           -o config-genesis.batch && \
@@ -406,3 +403,12 @@ services:
     stop_signal: SIGKILL
     depends_on:
       - validator-adhoc
+
+  endorser:
+    build:
+      context: .
+      dockerfile: Dockerfile-endorser
+    container_name: endorser
+    stop_signal: SIGKILL
+    expose:
+      - 1337

@@ -1,9 +1,0 @@
-FROM cantara/alpine-openjdk-jdk8
-
-RUN apk update
-RUN apk upgrade
-RUN apk add bash
-
-COPY endorser/build/libs/endorser-0.1.jar endorser.jar
-
-CMD java -jar endorser.jar

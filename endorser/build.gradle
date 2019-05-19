@@ -1,8 +1,4 @@
-repositories {
-    maven { url 'https://jitpack.io' }
-}
-
 dependencies {
-    compile 'com.github.seniorjoinu:prodigy:0.1.2'
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
+    compile "io.ktor:ktor-server-core:1.2.0"
+    compile "io.ktor:ktor-server-netty:1.2.0"
 }

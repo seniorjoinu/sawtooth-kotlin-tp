@@ -1,0 +1,3 @@
+FROM cantara/alpine-openjdk-jdk8
+
+COPY endorser/build/libs/endorser-0.1.jar endorser.jar

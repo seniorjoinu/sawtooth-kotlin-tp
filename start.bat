@@ -1,35 +1,79 @@
 @echo off
-if "%1" == "" (
-    echo You have to specify dummy-tp docker image version to build e.g. 0.1
-    exit /b 1
-)
-
-set version=%1
 
 echo Stopping old containers...
 @echo on
 docker-compose down
 @echo off
 
-if "%2" == "-r" (
-    docker system prune -f
+if "%1" == "-r" (
+    echo Removing old containers...
+    @echo on
+    docker-compose rm -f
+    @echo off
 )
 
 echo Building sources...
 call gradlew.bat clean build
 
-echo Building new containers...
-@echo on
-docker build -t dummy-tp:%version% -f Dockerfile-dummy-tp .
-docker build -t dummy-transaction-submitter:%version% -f Dockerfile-transaction-submitter .
-docker build -t sawtooth-pbft-engine-local:0.1 -f Dockerfile-pbft-engine .
-@echo off
+echo Building images...
+docker-compose build
 
-echo Starting containers...
-@echo on
-docker-compose up -d shell validator-0 validator-1 validator-2 validator-3 rest-api-0 rest-api-1 rest-api-2 rest-api-3 settings-tp-0 settings-tp-1 settings-tp-2 settings-tp-3 dummy-tp-0 dummy-tp-1 dummy-tp-2 dummy-tp-3 dummy-transaction-submitter pbft-0 pbft-1 pbft-2 pbft-3
-@echo off
+echo Starting endorser container...
+docker-compose up -d endorser
+
+echo Waiting 10 seconds...
+timeout 10 > NUL
+
+echo Starting root validator containers...
+docker-compose up -d validator-0 rest-api-0 settings-tp-0 dummy-tp-0 pbft-0
+
+echo Waiting 10 seconds...
+timeout 10 > NUL
+
+echo Starting 1st validator containers...
+docker-compose up -d validator-1 rest-api-1 settings-tp-1 dummy-tp-1 pbft-1
+
+echo Waiting 10 seconds...
+timeout 10 > NUL
+
+echo Starting 2nd validator containers...
+docker-compose up -d validator-2 rest-api-2 settings-tp-2 dummy-tp-2 pbft-2
+
+echo Waiting 10 seconds...
+timeout 10 > NUL
+
+echo Starting 3rd validator containers...
+docker-compose up -d validator-3 rest-api-3 settings-tp-3 dummy-tp-3 pbft-3
+
+echo Waiting 10 seconds...
+timeout 10 > NUL
+
+echo Starting other containers...
+docker-compose up -d shell dummy-transaction-submitter
 
 echo Started containers:
-@echo on
 docker ps
+
+echo Waiting 10 seconds...
+timeout 10 > NUL
+
+echo Starting 3rd validator containers...
+docker-compose up -d validator-adhoc rest-api-adhoc settings-tp-adhoc dummy-tp-adhoc pbft-adhoc
+
+echo Started containers:
+docker ps
+
+echo Waiting 20 seconds for validator-adhoc to catch up
+timeout 20 > NUL
+
+echo "Current state is:"
+docker exec sawtooth-validator-0 /bin/bash -c "sawtooth state list --url \"http://rest-api-0:8008\""
+
+echo Proposing adhoc validator into pbft-members
+docker exec sawtooth-validator-0 /bin/bash create-proposal.sh
+
+echo Waiting 10 seconds for proposal to apply
+timeout 10 > NUL
+
+echo "Current state is:"
+docker exec sawtooth-validator-0 /bin/bash -c "sawtooth state list --url \"http://rest-api-0:8008\""

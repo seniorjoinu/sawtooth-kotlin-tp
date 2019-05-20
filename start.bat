@@ -1,15 +1,11 @@
 @echo off
 
 echo Stopping old containers...
-@echo on
 docker-compose down
-@echo off
 
 if "%1" == "-r" (
     echo Removing old containers...
-    @echo on
     docker-compose rm -f
-    @echo off
 )
 
 echo Building sources...
@@ -49,7 +45,7 @@ echo Waiting 10 seconds...
 timeout 10 > NUL
 
 echo Starting other containers...
-docker-compose up -d shell dummy-transaction-submitter
+docker-compose up -d dummy-transaction-submitter
 
 echo Started containers:
 docker ps
@@ -57,23 +53,47 @@ docker ps
 echo Waiting 10 seconds...
 timeout 10 > NUL
 
-echo Starting 3rd validator containers...
+echo Starting adhoc validator containers...
 docker-compose up -d validator-adhoc rest-api-adhoc settings-tp-adhoc dummy-tp-adhoc pbft-adhoc
 
 echo Started containers:
 docker ps
 
-echo Waiting 20 seconds for validator-adhoc to catch up
-timeout 20 > NUL
+echo Waiting 30 seconds for validator-adhoc to catch up...
+timeout 30 > NUL
 
-echo "Current state is:"
+echo Current state is:
 docker exec sawtooth-validator-0 /bin/bash -c "sawtooth state list --url \"http://rest-api-0:8008\""
 
-echo Proposing adhoc validator into pbft-members
+echo Retrieving keys from endorser...
+docker exec sawtooth-validator-0 /bin/bash retrieve-keys.sh
+
+echo Proposing adhoc validator into pbft-members...
 docker exec sawtooth-validator-0 /bin/bash create-proposal.sh
 
-echo Waiting 10 seconds for proposal to apply
-timeout 10 > NUL
+echo Waiting 30 seconds for proposal to apply...
+timeout 30 > NUL
 
-echo "Current state is:"
+echo Current state is:
+docker exec sawtooth-validator-0 /bin/bash -c "sawtooth state list --url \"http://rest-api-0:8008\""
+
+echo Submitting an empty txn...
+docker exec -it dummy-transaction-submitter java -jar transaction-submitter.jar rest-api-0:8008
+
+echo Waiting a minute for txn to apply...
+timeout 60 > NUL
+
+echo Current state is:
+docker exec sawtooth-validator-0 /bin/bash -c "sawtooth state list --url \"http://rest-api-0:8008\""
+
+echo Removing adhoc keys...
+docker exec sawtooth-validator-0 /bin/bash remove-adhoc-keys.sh
+
+echo Proposing adhoc validator to leave pbft-members...
+docker exec sawtooth-validator-0 /bin/bash create-proposal.sh
+
+echo Waiting 30 seconds for proposal to apply...
+timeout 30 > NUL
+
+echo Current state is:
 docker exec sawtooth-validator-0 /bin/bash -c "sawtooth state list --url \"http://rest-api-0:8008\""

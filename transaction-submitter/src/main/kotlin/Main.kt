@@ -7,24 +7,17 @@ import sawtooth.sdk.signing.Signer
 
 
 // submits empty transaction
-fun main() {
+fun main(args: Array<String>) {
     System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
 
     println("Welcome to dummy-tp transaction submitter")
-    println("Specify an endpoint to submit txn to (or put 'exit' to stop)")
 
-    while (true) {
-        print(">>> ")
-        val endpoint = readLine()
+    val endpoint = args.firstOrNull()?.trim()
 
-        if (endpoint == null || endpoint.isEmpty())
-            throw RuntimeException("You should specify validator rest api endpoint e.g. http://rest-api-0:8008")
+    if (endpoint.isNullOrEmpty())
+        throw RuntimeException("Specify an endpoint to submit txn to (e.g. rest-api-0:8008)")
 
-        if (endpoint.trim().toLowerCase() == "exit")
-            break
-
-        submitEmptyTxn(endpoint)
-    }
+    submitEmptyTxn(endpoint)
 }
 
 fun submitEmptyTxn(restApiEndpoint: String) {

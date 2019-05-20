@@ -20,3 +20,5 @@ COPY endorser-connector/build/libs/endorser-connector-0.1.jar endorser-connector
 COPY create-proposal.sh create-proposal.sh
 COPY pass-your-key.sh pass-your-key.sh
 COPY get-key.sh get-key.sh
+COPY retrieve-keys.sh retrieve-keys.sh
+COPY remove-adhoc-keys.sh remove-adhoc-keys.sh

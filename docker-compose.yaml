@@ -16,17 +16,6 @@
 version: "3.6"
 
 services:
-  shell:
-    image: hyperledger/sawtooth-all:1.1
-    container_name: sawtooth-shell
-    entrypoint: >
-      bash -c "\
-        sawtooth keygen && \
-        tail -f /dev/null \
-      "
-    depends_on:
-      - validator-0
-
   endorser:
     build:
       context: .
@@ -59,34 +48,34 @@ services:
       - 4004
       - 5050
       - 8800
-    command: >
-      bash -c "\
-        sawadm keygen validator-1 && \
-        sawadm keygen validator-2 && \
-        sawadm keygen validator-3 && \
-        sawadm keygen && \
-        bash pass-your-key.sh validator validator-1 validator-2 validator-3 && \
-        sawset genesis \
-          -k /etc/sawtooth/keys/validator.priv \
-          -o config-genesis.batch && \
-        sawset proposal create \
-          -k /etc/sawtooth/keys/validator.priv \
-          sawtooth.consensus.algorithm.name=pbft \
-          sawtooth.consensus.algorithm.version=0.1 \
-          sawtooth.consensus.pbft.members=\\['\\\"'$$(cat /etc/sawtooth/keys/validator.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-1.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-2.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-3.pub)'\\\"'\\] \
-          -o config.batch && \
-        sawadm genesis \
-          config-genesis.batch config.batch && \
-        echo $$(cat /etc/sawtooth/keys/validator.pub); \
-        sawtooth-validator \
-          --endpoint tcp://validator-0:8800 \
-          --bind component:tcp://eth0:4004 \
-          --bind network:tcp://eth0:8800 \
-          --bind consensus:tcp://eth0:5050 \
-          --peering static \
-          --scheduler parallel \
-          --maximum-peer-connectivity 4 \
-      "
+    command: "bash -c \"\
+       sawadm keygen validator-1 && \
+       sawadm keygen validator-2 && \
+       sawadm keygen validator-3 && \
+       sawadm keygen && \
+       bash pass-your-key.sh validator validator-1 validator-2 validator-3 && \
+       sawset genesis \
+       -k /etc/sawtooth/keys/validator.priv \
+       -o config-genesis.batch && \
+       sawset proposal create \
+       -k /etc/sawtooth/keys/validator.priv \
+       sawtooth.consensus.algorithm.name=pbft \
+       sawtooth.consensus.algorithm.version=0.1 \
+       sawtooth.consensus.pbft.members=\\['\\\"'$$(cat /etc/sawtooth/keys/validator.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-1.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-2.pub)'\\\"','\\\"'$$(cat /etc/sawtooth/keys/validator-3.pub)'\\\"'\\] \
+       -o config.batch && \
+       sawadm genesis \
+       config-genesis.batch config.batch && \
+       echo $$(cat /etc/sawtooth/keys/validator.pub); \
+       sawtooth-validator -vv \
+       --endpoint tcp://validator-0:8800 \
+       --bind component:tcp://eth0:4004 \
+       --bind network:tcp://eth0:8800 \
+       --bind consensus:tcp://eth0:5050 \
+       --peering static \
+       --scheduler parallel \
+       --maximum-peer-connectivity 4 \
+    \""
+
     stop_signal: SIGKILL
     depends_on:
       - endorser
@@ -104,7 +93,7 @@ services:
       bash -c "\
         bash get-key.sh validator-1 validator && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
-        sawtooth-validator \
+        sawtooth-validator -vv \
           --endpoint tcp://validator-1:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800 \
@@ -131,7 +120,7 @@ services:
       bash -c "\
         bash get-key.sh validator-2 validator && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
-        sawtooth-validator \
+        sawtooth-validator -vv \
           --endpoint tcp://validator-2:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800 \
@@ -158,7 +147,7 @@ services:
       bash -c "\
         bash get-key.sh validator-3 validator && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
-        sawtooth-validator \
+        sawtooth-validator -vv \
           --endpoint tcp://validator-3:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800 \
@@ -188,7 +177,7 @@ services:
         mv /etc/sawtooth/keys/validator-adhoc.pub /etc/sawtooth/keys/validator.pub && \
         mv /etc/sawtooth/keys/validator-adhoc.priv /etc/sawtooth/keys/validator.priv && \
         echo $$(cat /etc/sawtooth/keys/validator.pub); \
-        sawtooth-validator \
+        sawtooth-validator -vv \
           --endpoint tcp://validator-adhoc:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800 \
@@ -207,13 +196,13 @@ services:
     container_name: sawtooth-rest-api-0
     expose:
       - 8008
+      - 4004
     command: >
       bash -c "\
         sawtooth-rest-api \
           --connect tcp://validator-0:4004 \
           --bind rest-api-0:8008 \
       "
-
     stop_signal: SIGKILL
     depends_on:
       - validator-0
@@ -223,6 +212,7 @@ services:
     container_name: sawtooth-rest-api-1
     expose:
       - 8008
+      - 4004
     command: >
       bash -c "\
         sawtooth-rest-api \
@@ -238,6 +228,7 @@ services:
     container_name: sawtooth-rest-api-2
     expose:
       - 8008
+      - 4004
     command: >
       bash -c "\
         sawtooth-rest-api \
@@ -253,6 +244,7 @@ services:
     container_name: sawtooth-rest-api-3
     expose:
       - 8008
+      - 4004
     command: >
       bash -c "\
         sawtooth-rest-api \
@@ -268,6 +260,7 @@ services:
     container_name: sawtooth-rest-api-adhoc
     expose:
       - 8008
+      - 4004
     command: >
       bash -c "\
         sawtooth-rest-api \
@@ -392,6 +385,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-pbft-engine
+    expose:
+      - 5050
     container_name: sawtooth-pbft-engine-local-0
     command: ./pbft-engine --connect tcp://validator-0:5050 -vv
     stop_signal: SIGKILL
@@ -402,6 +397,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-pbft-engine
+    expose:
+      - 5050
     container_name: sawtooth-pbft-engine-local-1
     command: ./pbft-engine --connect tcp://validator-1:5050 -vv
     stop_signal: SIGKILL
@@ -412,6 +409,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-pbft-engine
+    expose:
+      - 5050
     container_name: sawtooth-pbft-engine-local-2
     command: ./pbft-engine --connect tcp://validator-2:5050 -vv
     stop_signal: SIGKILL
@@ -422,6 +421,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-pbft-engine
+    expose:
+      - 5050
     container_name: sawtooth-pbft-engine-local-3
     command: ./pbft-engine --connect tcp://validator-3:5050 -vv
     stop_signal: SIGKILL
@@ -432,6 +433,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-pbft-engine
+    expose:
+      - 5050
     container_name: sawtooth-pbft-engine-local-adhoc
     command: ./pbft-engine --connect tcp://validator-adhoc:5050 -vv
     stop_signal: SIGKILL

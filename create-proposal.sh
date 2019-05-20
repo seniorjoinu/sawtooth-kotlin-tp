@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# retrieving and saving the keys files
-java -jar endorser-connector.jar -e
-
 # looping over files and getting they content
 FILES=/etc/sawtooth/keys/validator-*.pub
 last_file=$(ls -t $FILES | tail -1)

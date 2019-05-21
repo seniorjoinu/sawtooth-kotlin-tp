@@ -26,18 +26,37 @@ services:
     command: java -jar endorser.jar
     stop_signal: SIGKILL
 
-  dummy-transaction-submitter:
+  dummy-transaction-submitter-10:
     build:
       context: .
       dockerfile: Dockerfile-transaction-submitter
-    container_name: dummy-transaction-submitter
+    container_name: dummy-transaction-submitter-10
     stop_signal: SIGKILL
     command: java -jar docker-trick.jar
+    environment:
+      - SAWTOOTH_VERSION=1.0
     depends_on:
-      - dummy-tp-0
-      - dummy-tp-1
-      - dummy-tp-2
-      - dummy-tp-3
+      - dummy-tp-10-0
+      - dummy-tp-10-1
+      - dummy-tp-10-2
+      - dummy-tp-10-3
+      - dummy-tp-10-adhoc
+
+  dummy-transaction-submitter-20:
+    build:
+      context: .
+      dockerfile: Dockerfile-transaction-submitter
+    container_name: dummy-transaction-submitter-20
+    stop_signal: SIGKILL
+    command: java -jar docker-trick.jar
+    environment:
+      - SAWTOOTH_VERSION=2.0
+    depends_on:
+      - dummy-tp-20-0
+      - dummy-tp-20-1
+      - dummy-tp-20-2
+      - dummy-tp-20-3
+      - dummy-tp-20-adhoc
 
   validator-0:
     build:
@@ -321,63 +340,143 @@ services:
     depends_on:
       - validator-adhoc
 
-  dummy-tp-0:
+  dummy-tp-10-0:
     build:
       context: .
       dockerfile: Dockerfile-dummy-tp
-    container_name: dummy-tp-01-0
+    container_name: dummy-tp-10-0
     expose:
       - 4004
     command: java -jar dummy-tp.jar tcp://validator-0:4004
     stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=1.0
     depends_on:
       - settings-tp-0
 
-  dummy-tp-1:
+  dummy-tp-10-1:
     build:
       context: .
       dockerfile: Dockerfile-dummy-tp
-    container_name: dummy-tp-01-1
+    container_name: dummy-tp-10-1
     expose:
       - 4004
     command: java -jar dummy-tp.jar tcp://validator-1:4004
     stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=1.0
     depends_on:
       - settings-tp-1
 
-  dummy-tp-2:
+  dummy-tp-10-2:
     build:
       context: .
       dockerfile: Dockerfile-dummy-tp
-    container_name: dummy-tp-01-2
+    container_name: dummy-tp-10-2
     expose:
       - 4004
     command: java -jar dummy-tp.jar tcp://validator-2:4004
     stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=1.0
     depends_on:
       - settings-tp-2
 
-  dummy-tp-3:
+  dummy-tp-10-3:
     build:
       context: .
       dockerfile: Dockerfile-dummy-tp
-    container_name: dummy-tp-01-3
+    container_name: dummy-tp-10-3
     expose:
       - 4004
     command: java -jar dummy-tp.jar tcp://validator-3:4004
     stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=1.0
     depends_on:
       - settings-tp-3
 
-  dummy-tp-adhoc:
+  dummy-tp-10-adhoc:
     build:
       context: .
       dockerfile: Dockerfile-dummy-tp
-    container_name: dummy-tp-01-adhoc
+    container_name: dummy-tp-10-adhoc
     expose:
       - 4004
     command: java -jar dummy-tp.jar tcp://validator-adhoc:4004
     stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=1.0
+    depends_on:
+      - settings-tp-adhoc
+
+  dummy-tp-20-0:
+    build:
+      context: .
+      dockerfile: Dockerfile-dummy-tp
+    container_name: dummy-tp-20-0
+    expose:
+      - 4004
+    command: java -jar dummy-tp.jar tcp://validator-0:4004
+    stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=2.0
+    depends_on:
+      - settings-tp-0
+
+  dummy-tp-20-1:
+    build:
+      context: .
+      dockerfile: Dockerfile-dummy-tp
+    container_name: dummy-tp-20-1
+    expose:
+      - 4004
+    command: java -jar dummy-tp.jar tcp://validator-1:4004
+    stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=2.0
+    depends_on:
+      - settings-tp-1
+
+  dummy-tp-20-2:
+    build:
+      context: .
+      dockerfile: Dockerfile-dummy-tp
+    container_name: dummy-tp-20-2
+    expose:
+      - 4004
+    command: java -jar dummy-tp.jar tcp://validator-2:4004
+    stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=2.0
+    depends_on:
+      - settings-tp-2
+
+  dummy-tp-20-3:
+    build:
+      context: .
+      dockerfile: Dockerfile-dummy-tp
+    container_name: dummy-tp-20-3
+    expose:
+      - 4004
+    command: java -jar dummy-tp.jar tcp://validator-3:4004
+    stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=2.0
+    depends_on:
+      - settings-tp-3
+
+  dummy-tp-20-adhoc:
+    build:
+      context: .
+      dockerfile: Dockerfile-dummy-tp
+    container_name: dummy-tp-20-adhoc
+    expose:
+      - 4004
+    command: java -jar dummy-tp.jar tcp://validator-adhoc:4004
+    stop_signal: SIGKILL
+    environment:
+      - SAWTOOTH_VERSION=2.0
     depends_on:
       - settings-tp-adhoc
 

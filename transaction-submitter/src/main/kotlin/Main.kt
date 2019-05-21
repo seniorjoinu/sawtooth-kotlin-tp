@@ -27,9 +27,13 @@ fun submitEmptyTxn(restApiEndpoint: String) {
 
     val payloadBytes = ByteArray(0)
 
+    val version = System.getenv("SAWTOOTH_VERSION")
+    val familyVersion = if (version.isEmpty()) "1.0"
+    else version
+
     val header = TransactionHeader.newBuilder()
         .setFamilyName("dummy")
-        .setFamilyVersion("0.1")
+        .setFamilyVersion(familyVersion)
         .addInputs("1cf1266e282c41be5e4254d8820772c5518a2c5a8c0c7f7eda19594a7eb539453e1ed7")
         .addOutputs("1cf1266e282c41be5e4254d8820772c5518a2c5a8c0c7f7eda19594a7eb539453e1ed7")
         .setSignerPublicKey(signer.publicKey.hex())

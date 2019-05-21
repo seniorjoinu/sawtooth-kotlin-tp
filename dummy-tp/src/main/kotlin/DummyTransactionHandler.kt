@@ -14,7 +14,12 @@ class DummyTransactionHandler : TransactionHandler {
 
     override fun transactionFamilyName() = "dummy"
 
-    override fun getVersion() = "0.1"
+    override fun getVersion(): String {
+        val version = System.getenv("SAWTOOTH_VERSION")
+
+        return if (version.isEmpty()) "1.0"
+        else version
+    }
 
     override fun apply(transactionRequest: TpProcessRequest?, state: State?) {
         val txnId = Random().nextLong().absoluteValue.toString()
